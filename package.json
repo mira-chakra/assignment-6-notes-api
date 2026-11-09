@@ -1,0 +1,16 @@
+{
+  "name": "assignment-6-notes-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A REST API for notes built with Node.js, Express, and MongoDB/Mongoose.",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.9.5"
+  }
+}

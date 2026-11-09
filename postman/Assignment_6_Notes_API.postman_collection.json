@@ -1,0 +1,59 @@
+{
+  "info": {
+    "_postman_id": "930d6601-b34b-4d2f-a125-c80019e1f006",
+    "name": "Assignment 6 - Notes REST API",
+    "description": "Tests every CRUD route and common validation/not-found responses for the course Notes API project.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "noteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "GET - List all notes",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/notes" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 200', () => pm.response.to.have.status(200));", "pm.test('returns a JSON array', () => { pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "POST - Create note",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman test note\",\n  \"body\": \"Created by the Assignment 6 collection.\",\n  \"tags\": [\"test\", \"web\"]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/notes" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "const note = pm.response.json();", "pm.test('returns the created note', () => { pm.expect(note.title).to.eql('Postman test note'); pm.expect(note._id).to.be.a('string'); });", "pm.collectionVariables.set('noteId', note._id);"] } }]
+    },
+    {
+      "name": "GET - Get created note",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/notes/{{noteId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 200', () => pm.response.to.have.status(200));", "pm.test('returns the requested note', () => { pm.expect(pm.response.json()._id).to.eql(pm.collectionVariables.get('noteId')); });"] } }]
+    },
+    {
+      "name": "PUT - Replace created note",
+      "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Postman test note\",\n  \"body\": \"Updated with PUT.\",\n  \"tags\": [\"updated\"]\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/notes/{{noteId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 200', () => pm.response.to.have.status(200));", "pm.test('returns the updated note', () => { pm.expect(pm.response.json().title).to.eql('Updated Postman test note'); });"] } }]
+    },
+    {
+      "name": "DELETE - Delete created note",
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/notes/{{noteId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 204', () => pm.response.to.have.status(204));", "pm.test('has no response body', () => pm.expect(pm.response.text()).to.eql(''));"] } }]
+    },
+    {
+      "name": "POST - Reject missing title",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"body\": \"This request has no title.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/notes" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 400', () => pm.response.to.have.status(400));", "pm.test('explains the validation error', () => { pm.expect(pm.response.json().error).to.include('title is required'); });"] } }]
+    },
+    {
+      "name": "PUT - Reject invalid note data",
+      "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"   \",\n  \"body\": \"A title made of spaces is invalid.\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/notes/672a1b2c3d4e5f6071829301" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 400', () => pm.response.to.have.status(400));", "pm.test('explains the validation error', () => { pm.expect(pm.response.json().error).to.include('title is required'); });"] } }]
+    },
+    {
+      "name": "GET - Reject invalid id",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/notes/not-an-object-id" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 400', () => pm.response.to.have.status(400));", "pm.test('returns a JSON error', () => { pm.expect(pm.response.json().error).to.be.a('string'); });"] } }]
+    },
+    {
+      "name": "GET - Return 404 for missing note",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/notes/672a1b2c3d4e5f6071829301" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('returns 404', () => pm.response.to.have.status(404));", "pm.test('returns a JSON error', () => { pm.expect(pm.response.json().error).to.eql('Note not found.'); });"] } }]
+    }
+  ]
+}
